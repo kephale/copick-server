@@ -11,7 +11,8 @@ dependencies = [
     "uvicorn",
     "zarr",
     "fsspec",
-    "starlette"
+    "starlette",
+    "copick-utils",
 ]
 
 [build-system]
@@ -20,3 +21,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["copick_server"]
+
+[tool.uv.sources]
+copick-utils = { git = "https://github.com/copick/copick-utils" }
