@@ -11,7 +11,7 @@ dependencies = [
     "uvicorn",
     "zarr",
     "fsspec",
-    "starlette",
+    "fastapi",
     "copick-utils",
 ]
 
