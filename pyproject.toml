@@ -11,8 +11,16 @@ dependencies = [
     "uvicorn",
     "zarr",
     "fsspec",
-    "starlette",
+    "fastapi",
     "copick-utils",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "pytest-cov",
 ]
 
 [build-system]
