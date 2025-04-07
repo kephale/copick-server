@@ -5,6 +5,8 @@ import click
 import copick
 import numpy as np
 import uvicorn
+import threading
+
 import zarr
 from fsspec import AbstractFileSystem
 from fastapi import FastAPI, Request, Response
@@ -240,6 +242,38 @@ def serve_copick(config_path: str, allowed_origins: Optional[List[str]] = None, 
     root = copick.from_file(config_path)
     app = create_copick_app(root, allowed_origins)
     uvicorn.run(app, **kwargs)
+    return app
+
+def serve_copick_threaded(config_path: str, allowed_origins: Optional[List[str]] = None, **kwargs):
+    """Start an HTTP server in a background thread and return the app.
+    
+    Parameters
+    ----------
+    config_path : str
+        Path to Copick config file
+    allowed_origins : list of str, optional
+        List of allowed CORS origins. Use ["*"] to allow all.
+    **kwargs
+        Additional arguments passed to uvicorn.run()
+        
+    Returns
+    -------
+    app : FastAPI
+        FastAPI application
+    """
+    root = copick.from_file(config_path)
+    app = create_copick_app(root, allowed_origins)
+    
+    # Start the server in a background thread
+    server_thread = threading.Thread(
+        target=uvicorn.run,
+        args=(app,),
+        kwargs=kwargs,
+        daemon=True  # This makes the thread exit when the main thread exits
+    )
+    server_thread.start()
+    
+    return app
 
 @click.command()
 @click.argument("config", type=click.Path(exists=True))
