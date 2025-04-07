@@ -15,6 +15,14 @@ dependencies = [
     "copick-utils",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "pytest-cov",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
