@@ -7,10 +7,9 @@ import numpy as np
 import uvicorn
 import zarr
 from fsspec import AbstractFileSystem
-from starlette.applications import Starlette
-from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import Response
-from starlette.routing import Mount, Route
+from fastapi import FastAPI, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRoute
 
 class CopickRoute:
     """Route handler for Copick data entities."""
@@ -18,9 +17,8 @@ class CopickRoute:
     def __init__(self, root: copick.models.CopickRoot):
         self.root = root
         
-    async def handle_request(self, request):
+    async def handle_request(self, request: Request, path: str):
         # Parse path parameters
-        path = request.path_params["path"]
         path_parts = path.split("/")
         
         # Handle different path patterns
@@ -190,8 +188,8 @@ class CopickRoute:
             except KeyError:
                 return Response(status_code=404)
 
-def create_copick_app(root: copick.models.CopickRoot, cors_origins: Optional[List[str]] = None) -> Starlette:
-    """Create a Starlette app for serving a Copick project.
+def create_copick_app(root: copick.models.CopickRoot, cors_origins: Optional[List[str]] = None) -> FastAPI:
+    """Create a FastAPI app for serving a Copick project.
     
     Parameters
     ----------
@@ -202,13 +200,20 @@ def create_copick_app(root: copick.models.CopickRoot, cors_origins: Optional[Lis
         
     Returns
     -------
-    app : Starlette
-        Starlette application
+    app : FastAPI
+        FastAPI application
     """
+    app = FastAPI()
     route_handler = CopickRoute(root)
-    routes = [Route("/{path:path}", endpoint=route_handler.handle_request, methods=["GET", "HEAD", "PUT"])]
-    app = Starlette(routes=routes)
     
+    # Add the catch-all route
+    app.add_api_route(
+        "/{path:path}",
+        route_handler.handle_request,
+        methods=["GET", "HEAD", "PUT"]
+    )
+    
+    # Add CORS middleware if origins are specified
     if cors_origins:
         app.add_middleware(
             CORSMiddleware,
