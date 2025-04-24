@@ -12,7 +12,7 @@ dependencies = [
     "zarr",
     "fsspec",
     "fastapi",
-    "copick-utils",
+    "copick-utils @ git+https://github.com/copick/copick-utils",
 ]
 
 [project.optional-dependencies]
