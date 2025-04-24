@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "click",
-    "copick",
+    "copick>=1.0.1",
     "numpy",
     "uvicorn",
     "zarr",
