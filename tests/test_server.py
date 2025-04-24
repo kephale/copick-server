@@ -16,19 +16,23 @@ def test_cors_middleware(mock_copick_root):
     """Test that CORS is properly configured."""
     from copick_server.server import create_copick_app
     from fastapi.testclient import TestClient
-    
+
     # Create app with CORS origins
     app = create_copick_app(mock_copick_root, cors_origins=["https://example.com"])
-    
+
     # Create a test client
     client = TestClient(app)
-    
+
     # Make a request with an Origin header
     response = client.get("/any-path", headers={"Origin": "https://example.com"})
-    
+
     # Check if CORS headers are present in the response
-    assert "access-control-allow-origin" in response.headers, "CORS headers not found in response"
-    assert response.headers["access-control-allow-origin"] == "https://example.com", "Incorrect CORS origin value"
+    assert (
+        "access-control-allow-origin" in response.headers
+    ), "CORS headers not found in response"
+    assert (
+        response.headers["access-control-allow-origin"] == "https://example.com"
+    ), "Incorrect CORS origin value"
 
 
 @pytest.mark.asyncio
@@ -46,37 +50,40 @@ async def test_handle_tomogram_request(mock_handle_tomogram, client, monkeypatch
     run_mock = MagicMock()
     root_mock = MagicMock()
     root_mock.get_run.return_value = run_mock
-    
+
     # Set up mock for _handle_tomogram
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_handle_tomogram.return_value = mock_response
-    
+
     # Find the route handler in the application
     route_handler = None
     for route in client.app.routes:
-        if isinstance(route.endpoint, types.MethodType) and route.endpoint.__self__.__class__.__name__ == 'CopickRoute':
+        if (
+            isinstance(route.endpoint, types.MethodType)
+            and route.endpoint.__self__.__class__.__name__ == "CopickRoute"
+        ):
             route_handler = route.endpoint.__self__
             break
-    
+
     assert route_handler is not None, "Could not find CopickRoute handler"
-    
+
     # Save the original root
     original_root = route_handler.root
-    
+
     # Temporarily replace the root
     route_handler.root = root_mock
-    
+
     try:
         # Make the request
         response = client.get("/test_run/Tomograms/VoxelSpacing10.0/test.zarr")
-        
+
         # Verify the response
         assert response.status_code == 200
-        
+
         # Verify the correct run was obtained
         root_mock.get_run.assert_called_once_with("test_run")
-        
+
         # Verify _handle_tomogram was called
         mock_handle_tomogram.assert_called_once()
     finally:
@@ -92,37 +99,40 @@ async def test_handle_picks_request(mock_handle_picks, client, monkeypatch):
     run_mock = MagicMock()
     root_mock = MagicMock()
     root_mock.get_run.return_value = run_mock
-    
+
     # Set up mock for _handle_picks
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_handle_picks.return_value = mock_response
-    
+
     # Find the route handler in the application
     route_handler = None
     for route in client.app.routes:
-        if isinstance(route.endpoint, types.MethodType) and route.endpoint.__self__.__class__.__name__ == 'CopickRoute':
+        if (
+            isinstance(route.endpoint, types.MethodType)
+            and route.endpoint.__self__.__class__.__name__ == "CopickRoute"
+        ):
             route_handler = route.endpoint.__self__
             break
-    
+
     assert route_handler is not None, "Could not find CopickRoute handler"
-    
+
     # Save the original root
     original_root = route_handler.root
-    
+
     # Temporarily replace the root
     route_handler.root = root_mock
-    
+
     try:
         # Make the request
         response = client.get("/test_run/Picks/user_session_test.json")
-        
+
         # Verify the response
         assert response.status_code == 200
-        
+
         # Verify the correct run was obtained
         root_mock.get_run.assert_called_once_with("test_run")
-        
+
         # Verify _handle_picks was called
         mock_handle_picks.assert_called_once()
     finally:
@@ -132,43 +142,48 @@ async def test_handle_picks_request(mock_handle_picks, client, monkeypatch):
 
 @pytest.mark.asyncio
 @patch("copick_server.server.CopickRoute._handle_segmentation")
-async def test_handle_segmentation_request(mock_handle_segmentation, client, monkeypatch):
+async def test_handle_segmentation_request(
+    mock_handle_segmentation, client, monkeypatch
+):
     """Test that segmentation requests are routed correctly."""
     # Mock the get_run method to return a valid run
     run_mock = MagicMock()
     root_mock = MagicMock()
     root_mock.get_run.return_value = run_mock
-    
+
     # Set up mock for _handle_segmentation
     mock_response = MagicMock()
     mock_response.status_code = 200
     mock_handle_segmentation.return_value = mock_response
-    
+
     # Find the route handler in the application
     route_handler = None
     for route in client.app.routes:
-        if isinstance(route.endpoint, types.MethodType) and route.endpoint.__self__.__class__.__name__ == 'CopickRoute':
+        if (
+            isinstance(route.endpoint, types.MethodType)
+            and route.endpoint.__self__.__class__.__name__ == "CopickRoute"
+        ):
             route_handler = route.endpoint.__self__
             break
-    
+
     assert route_handler is not None, "Could not find CopickRoute handler"
-    
+
     # Save the original root
     original_root = route_handler.root
-    
+
     # Temporarily replace the root
     route_handler.root = root_mock
-    
+
     try:
         # Make the request
         response = client.get("/test_run/Segmentations/10.0_user_session_test.zarr")
-        
+
         # Verify the response
         assert response.status_code == 200
-        
+
         # Verify the correct run was obtained
         root_mock.get_run.assert_called_once_with("test_run")
-        
+
         # Verify _handle_segmentation was called
         mock_handle_segmentation.assert_called_once()
     finally:
