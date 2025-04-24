@@ -44,8 +44,40 @@ uv run copick_server/server.py serve --dataset-ids 10440 --cors "*" --port 8017
 
 ### Launch a client
 
+#### Basic client
+
 ```bash
-uv run copick_server/client.py
+python -m copick_server.client
+```
+
+#### Client CLI
+
+The client now supports CLI commands for various operations. You can specify a different server URL with the `--base-url` option.
+
+```bash
+# Create an empty segmentation
+python -m copick_server.client create-segmentation \
+    --base-url "http://localhost:8017" \
+    --run-name 10440 \
+    --voxel-size 10.012 \
+    --user-id "myuser" \
+    --session-id "mysession" \
+    --name "membrane"
+```
+
+Using uv run:
+```bash
+uv run copick_server/client.py create-segmentation \
+    --base-url "http://localhost:8017" \
+    --run-name 10440 \
+    --voxel-size 10.012 \
+    --name "membrane"
+```
+
+Get CLI help:
+```bash
+python -m copick_server.client --help
+python -m copick_server.client create-segmentation --help
 ```
 
 ## Running Tests
@@ -62,6 +94,8 @@ pytest --cov=copick_server
 
 ## CLI Options
 
+### Server Options
+
 ```
 python -m copick_server.server serve --help
 ```
@@ -75,6 +109,22 @@ python -m copick_server.server serve --help
 | --host            | Bind socket to this host                               | 127.0.0.1     |
 | --port            | Bind socket to this port                               | 8000          |
 | --reload          | Enable auto-reload                                     | False         |
+
+### Client Options
+
+```
+python -m copick_server.client create-segmentation --help
+```
+
+| Option            | Description                                            | Default       |
+|-------------------|--------------------------------------------------------|---------------|
+| --base-url        | Base URL of the Copick server                          | http://localhost:8017 |
+| --run-name        | Name of the run to work with                           | (Required)    |
+| --voxel-size      | Voxel size to use                                      | (Required)    |
+| --user-id         | User ID for the segmentation                           | copickClient  |
+| --session-id      | Session ID for the segmentation                        | copickSession |
+| --name            | Name of the segmentation                               | (Required)    |
+| --multilabel      | Flag for multilabel segmentation                       | False         |
 
 ## References
 
